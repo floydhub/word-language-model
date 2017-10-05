@@ -8,9 +8,12 @@ from torch.autograd import Variable
 import data
 import model
 
+# Add ckp
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
-parser.add_argument('--data', type=str, default='./data/penn',
+parser.add_argument('--data', type=str, default='/input', # /input
                     help='location of the data corpus')
+parser.add_argument('--checkpoint', type=str, default='',
+                    help='model checkpoint to use')
 parser.add_argument('--model', type=str, default='LSTM',
                     help='type of recurrent net (RNN_TANH, RNN_RELU, LSTM, GRU)')
 parser.add_argument('--emsize', type=int, default=200,
@@ -39,7 +42,7 @@ parser.add_argument('--cuda', action='store_true',
                     help='use CUDA')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
-parser.add_argument('--save', type=str,  default='model.pt',
+parser.add_argument('--save', type=str,  default='/output/model.pt', # /output
                     help='path to save the final model')
 args = parser.parse_args()
 
@@ -79,10 +82,23 @@ test_data = batchify(corpus.test, eval_batch_size)
 
 ntokens = len(corpus.dictionary)
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied)
+
+# Load checkpoint
+if args.checkpoint != '':
+    if args.cuda:
+        model = torch.load(args.checkpoint)
+    else:
+        # Load GPU model on CPU
+        model = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
+
 if args.cuda:
     model.cuda()
+else:
+    model.cpu()
 
 criterion = nn.CrossEntropyLoss()
+if args.cuda:
+    criterion.cuda()
 
 ###############################################################################
 # Training code

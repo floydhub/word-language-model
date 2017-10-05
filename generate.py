@@ -15,11 +15,11 @@ import data
 parser = argparse.ArgumentParser(description='PyTorch PTB Language Model')
 
 # Model parameters.
-parser.add_argument('--data', type=str, default='./data/penn',
+parser.add_argument('--data', type=str, default='/input',
                     help='location of the data corpus')
-parser.add_argument('--checkpoint', type=str, default='./model.pt',
+parser.add_argument('--checkpoint', type=str, default='/model/model.pt',
                     help='model checkpoint to use')
-parser.add_argument('--outf', type=str, default='generated.txt',
+parser.add_argument('--outf', type=str, default='/output/generated.txt',
                     help='output file for generated text')
 parser.add_argument('--words', type=int, default='1000',
                     help='number of words to generate')
@@ -44,8 +44,13 @@ if torch.cuda.is_available():
 if args.temperature < 1e-3:
     parser.error("--temperature has to be greater or equal 1e-3")
 
-with open(args.checkpoint, 'rb') as f:
-    model = torch.load(f)
+# Load checkpoint
+if args.checkpoint != '':
+    if args.cuda:
+        model = torch.load(args.checkpoint)
+    else:
+        # Load GPU model on CPU
+        model = torch.load(args.checkpoint, map_location=lambda storage, loc: storage)
 model.eval()
 
 if args.cuda:
@@ -67,6 +72,7 @@ with open(args.outf, 'w') as outf:
         word_idx = torch.multinomial(word_weights, 1)[0]
         input.data.fill_(word_idx)
         word = corpus.dictionary.idx2word[word_idx]
+        # word = '\n' if word == "<eos>" else word
 
         outf.write(word + ('\n' if i % 20 == 19 else ' '))
 
