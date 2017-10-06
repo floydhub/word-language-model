@@ -56,8 +56,8 @@ Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub
 the project:
 
 ```bash
-$ git clone https://github.com/ReDeiPirati/word-language-mode.git
-$ cd word-language-mode
+$ git clone https://github.com/ReDeiPirati/word-language-model.git
+$ cd word-language-model
 $ floyd init word-language-model
 ```
 
@@ -65,13 +65,13 @@ $ floyd init word-language-model
 
 ```bash
 # Train a LSTM on PTB with CUDA, reaching perplexity of 117.61
-floyd run --gpu --env --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --epochs 6"
+floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --epochs 7"
 
 # Train a tied LSTM on PTB with CUDA, reaching perplexity of 110.44
-floyd run --gpu --env --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --epochs 6 --tied"
+floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --epochs 7 --tied"
 
 # Train a tied LSTM on PTB with CUDA for 40 epochs, reaching perplexity of 87.17
-floyd run --gpu --env --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --tied"
+floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --tied"
 ```
 
 The model uses the `nn.RNN` module (and its sister modules `nn.GRU` and `nn.LSTM`)

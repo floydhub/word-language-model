@@ -13,6 +13,7 @@ FLOYD_README.md
 .floydexpt
 .DS_Store
 core
+data/
 
 # C extensions
 *.so
