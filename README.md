@@ -46,6 +46,10 @@ These perplexities are equal or better than
 and are similar to [Using the Output Embedding to Improve Language Models (Press & Wolf 2016](https://arxiv.org/abs/1608.05859) and [Tying Word Vectors and Word Classifiers: A Loss Framework for Language Modeling (Inan et al. 2016)](https://arxiv.org/pdf/1611.01462.pdf), though both of these papers have improved perplexities by using a form of recurrent dropout [(variational dropout)](http://papers.nips.cc/paper/6241-a-theoretically-grounded-application-of-dropout-in-recurrent-neural-networks).
 
 
+## Architecture
+
+Soon.
+
 ## Run on FloydHub
 
 Here's the commands to training, evaluating and serving your language modeling task on FloydHub.
@@ -63,8 +67,10 @@ $ floyd init word-language-model
 
 ### Training
 
+Before you start, you need to upload the [Penn Treebank-3 dataset](https://catalog.ldc.upenn.edu/ldc99t42) as a FloydHub Dataset following this guide: [create and upload a dataset](https://docs.floydhub.com/guides/create_and_upload_dataset/). Then you will be ready to play with different language models.
+
 ```bash
-# Train a LSTM on PTB with CUDA, reaching perplexity of 117.61
+# Train a LSTM on PTB with CUDA, reaching perplexity of 114.22
 floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --epochs 7"
 
 # Train a tied LSTM on PTB with CUDA, reaching perplexity of 110.44
@@ -74,24 +80,36 @@ floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>
 floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input "python main.py --cuda --tied"
 ```
 
+Note:
+
+- `--gpu` run your job on a FloydHub GPU instance.
+- `--env pytorch-0.2` prepares a pytorch environment for python 3.
+- `--data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input` mounts the previus uploaded Penn Treebank-3 dataset in the `/input` folder inside the container for our job.
+
 The model uses the `nn.RNN` module (and its sister modules `nn.GRU` and `nn.LSTM`)
 which will automatically use the cuDNN backend if run on CUDA with cuDNN installed.
 
 During training, if a keyboard interrupt (Ctrl-C) is received,
 training is stopped and the current model is evaluated against the test dataset.
 
+You can follow along the progress by using the [logs](https://docs.floydhub.com/commands/logs/) command.
+The first 2 examples of training should be completed in about 5 minutes on a GPU instance and 40' on a CPU one. The last example should take about 30' on a GPU instance and above 3 hours on a CPU instace.
+
 ### Evaluating
+
+It's time to evaluate our model generating some text:
 
 ```bash
 # Generate samples from the trained LSTM model.
-loyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python generate.py --cuda"
+floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python generate.py --cuda"
 ```
 
 ### Try our pre-trained model
 
+We have provided to you a pre-trained model trained for 40 epochs reaching perplexity of 87.17:
 ```bash
 # Generate samples from the trained LSTM model.
-loyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python generate.py --cuda"
+floyd run --gpu --env pytorch-0.2 --data <USERNAME>/dataset/<PENN-TB3>/<VERSION>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python generate.py --cuda"
 ```
 
 
@@ -108,13 +126,12 @@ floyd run --gpu --mode serve --env pytorch-0.2  --data <USERNAME>/dataset/<PENN-
 
 The above command will print out a service endpoint for this job in your terminal console.
 
-The service endpoint will take a couple minutes to become ready. Once it's up, you can interact with the model by sending an handwritten image file with a POST request that the model will classify:
+The service endpoint will take a couple minutes to become ready. Once it's up, you can interact with the model by sending a POST request wih the number of words and the temperature that the model will use to generate text:
 ```bash
 # Template
-# curl -X POST -F "file=@<HANDWRITTEN_IMAGE>" -F "ckp=<MODEL_CHECKPOINT>" <SERVICE_ENDPOINT>
+# curl -X POST -o <NAME_&_PATH_DOWNLOADED_GENERATED_TEXT> -F "words=<NUMBER_OF_WORDS_TO_GENERATE>" -F "temperature=<TEMPERATURE>" <SERVICE_ENDPOINT>
 
-# e.g. of a POST req
-curl -X POST -F "file=@./test/images/1.png" https://www.floydhub.com/expose/BhZCFAKom6Z8RptVKskHZW
+curl -X POST -o generated.txt -F "words=100" -F "temperature=3" https://www.floydlabs.com/expose/vk47ixT8NeYBTFeMavbWta
 ```
 
 Any job running in serving mode will stay up until it reaches maximum runtime. So
@@ -126,7 +143,9 @@ once you are done testing, **remember to shutdown the job!**
 
 Some useful resources on NLP for Deep Learning and language modeling task:
 
-- []()
+- [The Unreasonable Effectiveness of Recurrent Neural Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)
+- [Natural Language Processing with Deep Learning - Stanford](https://youtu.be/OQQ-W_63UgQ)
+- [Oxford Deep NLP 2017 course](https://github.com/oxford-cs-deepnlp-2017/lectures)
 
 ## Contributing
 
