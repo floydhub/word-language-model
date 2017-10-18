@@ -60,7 +60,7 @@ Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub
 the project:
 
 ```bash
-$ git clone https://github.com/ReDeiPirati/word-language-model.git
+$ git clone https://github.com/floydhub/word-language-model.git
 $ cd word-language-model
 $ floyd init word-language-model
 ```
