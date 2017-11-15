@@ -56,7 +56,7 @@ Here's the commands to training, evaluating and serving your language modeling t
 
 ### Project Setup
 
-Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub.com/commands/login/) command, then fork and init the project(make sure you have already [created the project on FloydHub](https://docs.floydhub.com/guides/basics/create_new/)):
+Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub.com/commands/login/) command, then fork and init the project:
 
 ```bash
 $ git clone https://github.com/floydhub/word-language-model.git
