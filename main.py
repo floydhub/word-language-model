@@ -96,7 +96,6 @@ if args.cuda:
 else:
     model.cpu()
 print (model)
-quit()
 
 criterion = nn.CrossEntropyLoss()
 if args.cuda:
